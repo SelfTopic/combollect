@@ -93,6 +93,27 @@ function tryLaw(world: World, entity: Entity, action: PlannedAction, slot: numbe
 	return entity.state.windup === null;
 }
 
+/**
+ * Атака «до смерти цели»: между ударами ждёт перезарядку и подготовку, а не пропускает.
+ * true — действие кончилось (цели нет или бить невозможно), можно брать следующее.
+ */
+function holdAttack(
+	world: World,
+	entity: Entity,
+	action: PlannedAction,
+	slot: number,
+	reason: string | null,
+): boolean {
+	if (reason === "перезарядка") return false;
+	if (reason !== null) {
+		skip(world, entity, action, reason);
+		return true;
+	}
+	if (action.kind !== "attack") return true;
+	startLaw(world, entity, slot, { kind: "entity", id: action.targetId });
+	return false;
+}
+
 function processPlan(world: World, entity: Entity): void {
 	for (let step = 0; step < MAX_STEPS_PER_TICK; step++) {
 		const head = entity.plan[0];
@@ -117,9 +138,13 @@ function processPlan(world: World, entity: Entity): void {
 			skip(world, entity, head, "нет базовой атаки");
 			continue;
 		}
+		const reason = whyCannotUse(world, entity, slot, { kind: "entity", id: head.targetId });
 		// Цель далеко — подходим (это делает movementSystem), действие остаётся в плане.
-		if (whyCannotUse(world, entity, slot, { kind: "entity", id: head.targetId }) === TOO_FAR)
-			return;
+		if (reason === TOO_FAR) return;
+		if (head.hold === true) {
+			if (!holdAttack(world, entity, head, slot, reason)) return;
+			continue;
+		}
 		if (!tryLaw(world, entity, head, slot)) return;
 	}
 }

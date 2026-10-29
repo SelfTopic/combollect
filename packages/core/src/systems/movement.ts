@@ -13,11 +13,12 @@ import {
 	IMPACT_MIN_SPEED,
 } from "../physics.ts";
 import { massFactor } from "../tags.ts";
-import { add, distance, length, normalize, scale, sub, type Vec2, ZERO } from "../units.ts";
+import { add, distance, dot, length, normalize, scale, sub, type Vec2, ZERO } from "../units.ts";
 import { emit, entitiesInOrder, type World } from "../world.ts";
 import { basicAttackSlot } from "./plan.ts";
 
 const MOVEMENT: Cause = { system: "movement" };
+const REACH_MARGIN = 1;
 
 function overlaps(a: Entity, at: Vec2, b: Entity): boolean {
 	return distance(at, b.position) < a.stats.radiusUnits + b.stats.radiusUnits;
@@ -43,7 +44,8 @@ function walkGoal(world: World, entity: Entity): { point: Vec2; stopAt: number }
 	const slot = entity.laws[basicAttackSlot(world, entity)];
 	if (target === undefined || !isAlive(target) || slot === undefined) return null;
 	const reach = (slot.params.rangeUnits ?? 0) + entity.stats.radiusUnits + target.stats.radiusUnits;
-	return { point: target.position, stopAt: reach };
+	// Чуть ближе дальности удара, чтобы не застыть на самой границе из-за округления.
+	return { point: target.position, stopAt: Math.max(0, reach - REACH_MARGIN) };
 }
 
 /**
@@ -91,21 +93,46 @@ function fly(world: World, entity: Entity, dt: number, solids: readonly Entity[]
 	entity.velocity = stops ? ZERO : scale(dir, speed - decel * dt);
 }
 
+/** Сквозь деревья и камни не пройти (`Terrain`). */
+function blockerAt(entity: Entity, at: Vec2, solids: readonly Entity[]): Entity | undefined {
+	return solids.find((o) => o !== entity && o.tags.has("Terrain") && overlaps(entity, at, o));
+}
+
+/**
+ * Шаг ходьбы. Упёрся в дерево или камень — обходит его по касательной, если может.
+ * null — идти некуда.
+ */
+function walkStep(
+	world: World,
+	entity: Entity,
+	dir: Vec2,
+	step: number,
+	solids: readonly Entity[],
+): Vec2 | null {
+	const next = clampToGrid(world, add(entity.position, scale(dir, step)));
+	const blocker = blockerAt(entity, next, solids);
+	if (blocker === undefined) return next;
+	const away = normalize(sub(entity.position, blocker.position));
+	const into = dot(dir, away);
+	if (into >= 0) return null;
+	const tangent = sub(dir, scale(away, into));
+	if (length(tangent) < 1e-6) {
+		// Идёт точно в центр препятствия: обходить в стабильную сторону.
+		return walkStep(world, entity, normalize({ x: -away.y, y: away.x }), step, solids);
+	}
+	const slid = clampToGrid(world, add(entity.position, scale(normalize(tangent), step)));
+	return blockerAt(entity, slid, solids) === undefined ? slid : null;
+}
+
 function walk(world: World, entity: Entity, dt: number, solids: readonly Entity[]): void {
 	const goal = walkGoal(world, entity);
 	if (goal === null) return;
 	const left = distance(entity.position, goal.point) - goal.stopAt;
 	if (left <= 0) return;
 	const step = Math.min(left, entity.stats.moveSpeed * speedFactor(entity) * dt);
-	const next = clampToGrid(
-		world,
-		add(entity.position, scale(normalize(sub(goal.point, entity.position)), step)),
-	);
-	// Сквозь деревья и камни не пройти.
-	const blocked = solids.some(
-		(o) => o !== entity && o.tags.has("Terrain") && overlaps(entity, next, o),
-	);
-	if (blocked) return;
+	const dir = normalize(sub(goal.point, entity.position));
+	const next = walkStep(world, entity, dir, step, solids);
+	if (next === null) return;
 	entity.state.walkedUnits = distance(entity.position, next);
 	if (entity.state.walkedUnits > 0) entity.state.heading = normalize(sub(next, entity.position));
 	entity.position = next;

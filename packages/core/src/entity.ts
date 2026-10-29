@@ -33,7 +33,12 @@ export type LawTarget =
 export type PlannedAction =
 	| { readonly kind: "move"; readonly to: Vec2 }
 	| { readonly kind: "useLaw"; readonly slot: number; readonly target: LawTarget }
-	| { readonly kind: "attack"; readonly targetId: EntityId };
+	| {
+			readonly kind: "attack";
+			readonly targetId: EntityId;
+			/** Бить, пока цель жива (ПКМ по цели), а не один удар. */
+			readonly hold?: boolean;
+	  };
 
 export interface LawSlot {
 	readonly lawId: LawId;
