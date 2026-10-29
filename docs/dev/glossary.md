@@ -25,6 +25,18 @@
 | Журнал событий | `EventLog` |
 | Клетка карты | `Cell`, карта — `Grid` |
 | Зона тела | `BodyZone`: `head`, `torso`, `arms`, `legs` |
+| Базовая атака | `basicAttack` (флаг закона) |
+| Жест (закону нужны руки) | `gesture` (флаг закона) |
+| Накопленный удар (по остановленной сущности) | `PendingHit`, `state.pending` |
+| Заряд воды (ток, оставшийся в воде после разряда) | `WaterCharge`, `world.charges` |
+| Граф проводников | `ConductionGraph` |
+| Влажность сущности | `Wetness`: `dry`, `wet`, `soaked` |
+| Влажность клетки | `CellMoisture`: `dry`, `wet` (вода — поверхность `water`) |
+| Поверхность клетки | `Surface`: `ground`, `grass`, `stone`, `water`, `ice`, `scorched` |
+| Горение | `state.burning` |
+| Сотрясение | `state.concussionSec` |
+| Старение (лорная цена) | `cost.lore.agingMaxHealthPct` |
+| Существо (тестовый набор меток) | функции в `content/creatures.ts`: `human`, `outOfTimeHuman`, `wolf`, `stoneGolem`, `tree`, `rock` |
 
 ## Уровни
 
@@ -77,6 +89,7 @@
 
 | ID | Дизайн | Код (файл в `content/laws/`) |
 |----|--------|------------------------------|
+| L2-00 | Удар (базовая атака, механика) | `strike.ts` |
 | L2-01 | Импульс | `impulse.ts` |
 | L2-02 | Бросок | `throw.ts` |
 | L3-01 | Пламя | `flame.ts` |
