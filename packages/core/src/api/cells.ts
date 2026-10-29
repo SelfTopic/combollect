@@ -103,7 +103,7 @@ export function updateCellPhase(world: World, index: number, cause: Cause): void
 	const cell = cellOf(world, index);
 	const t = cell.temperature;
 	if (cell.surface === "ice") {
-		if (t > ICE_MELT_TEMP) meltIce(world, index, cause);
+		if (t >= ICE_MELT_TEMP) meltIce(world, index, cause);
 		return;
 	}
 	if (t <= WATER_FREEZE_TEMP) {

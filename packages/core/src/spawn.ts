@@ -1,5 +1,6 @@
 // Появление сущностей в мире.
 
+import { updateBurning } from "./api/effects.ts";
 import { computeRate } from "./clock.ts";
 import type { Entity, ProjectileData, Wetness } from "./entity.ts";
 import type { Cause, LawId } from "./events.ts";
@@ -77,5 +78,7 @@ export function spawn(world: World, spec: SpawnSpec, cause: Cause = {}): Entity 
 	entity.clock.rate = computeRate(world, entity);
 	world.entities.set(entity.id, entity);
 	emit(world, { kind: "entitySpawned", target: entity.id, cause, note: entity.name });
+	// Появившееся уже раскалённым горит сразу, даже если его время стоит.
+	updateBurning(world, entity, cause);
 	return entity;
 }
