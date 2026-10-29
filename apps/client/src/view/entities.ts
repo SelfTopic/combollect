@@ -48,7 +48,13 @@ export interface EntityPaint {
 function text(size: number, color: number): Text {
 	return new Text({
 		text: "",
-		style: { fontFamily: "Arial", fontSize: size, fill: color, fontWeight: "bold" },
+		style: {
+			fontFamily: "Arial",
+			fontSize: size,
+			fill: color,
+			fontWeight: "bold",
+			stroke: { color: 0x000000, width: 3 },
+		},
 		resolution: 2,
 	});
 }
@@ -80,7 +86,7 @@ export class EntityLayer {
 		const overlay = new Graphics();
 		const label = text(15, 0xffffff);
 		label.anchor.set(0.5);
-		const info = text(11, TIME_COLOR);
+		const info = text(13, TIME_COLOR);
 		info.anchor.set(0.5, 0);
 		root.addChild(body, label, overlay, info);
 		this.view.addChild(root);
@@ -145,7 +151,7 @@ export class EntityLayer {
 		const team = e.team === null ? NEUTRAL_RING : (TEAM_COLORS[e.team] ?? NEUTRAL_RING);
 		g.roundRect(-r, -r, r * 2, r * 2, 8)
 			.fill(desaturate(0x4a4038, rate))
-			.stroke({ width: 4, color: desaturate(team, rate) });
+			.stroke({ width: 4, color: team });
 		// Корона — чтобы трон читался как цель матча.
 		g.poly([
 			-r * 0.55,
@@ -171,13 +177,14 @@ export class EntityLayer {
 		const r = e.stats.radiusUnits;
 		const hero = paint.heroes.get(e.id);
 		const look = hero === undefined ? undefined : HERO_LOOKS[hero.id];
+		// Кольцо команды — пометка интерфейса, а не тело: оно не тускнеет, когда время стоит.
 		const team = e.team === null ? NEUTRAL_RING : (TEAM_COLORS[e.team] ?? NEUTRAL_RING);
 		if (paint.selectedId === e.id) {
 			g.circle(0, 0, r + 8).stroke({ width: 2, color: 0xffffff, alpha: 0.9 });
 		}
 		g.circle(0, 0, r)
 			.fill(desaturate(look?.color ?? 0x8c7a66, rate))
-			.stroke({ width: 4, color: desaturate(team, rate) });
+			.stroke({ width: 4, color: team });
 		s.label.text = look?.letter ?? "";
 		s.label.style.fill = desaturate(0xffffff, rate);
 		const slot = paint.playerHeroes.indexOf(e.id);
