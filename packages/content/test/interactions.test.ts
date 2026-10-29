@@ -98,7 +98,8 @@ describe("Взаимодействия законов этапа 1", () => {
 		const target = must(e[1]);
 		cast(world, bearer, "L3-01", at(target.position));
 		expect(target.state.wetness).toBe("dry");
-		expect(target.state.temperature).toBe(0);
+		// 15° ушло на испарение, остаток Пламени (+20°) нагревает.
+		expect(target.state.temperature).toBeCloseTo(5, 0);
 		ready(bearer, "L3-01");
 		cast(world, bearer, "L3-01", at(target.position));
 		expect(target.state.temperature).toBeGreaterThan(14);

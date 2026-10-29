@@ -110,7 +110,7 @@ export function updateCellPhase(world: World, index: number, cause: Cause): void
 		freeze(world, index, cause);
 		return;
 	}
-	if (t <= IGNITION_TEMP || cell.moisture === "wet") return;
+	if (t < IGNITION_TEMP || cell.moisture === "wet") return;
 	if (cell.surface === "grass" && cell.burningSec === 0) {
 		cell.burningSec = GRASS_BURN_SEC;
 		emit(world, { kind: "cellIgnited", cell: index, cause });

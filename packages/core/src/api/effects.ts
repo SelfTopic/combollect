@@ -75,7 +75,7 @@ export function canBurn(entity: Entity): boolean {
 		entity.tags.has("Flammable") &&
 		!entity.tags.has("Nonflammable") &&
 		entity.state.wetness === "dry" &&
-		entity.state.temperature > IGNITION_TEMP
+		entity.state.temperature >= IGNITION_TEMP
 	);
 }
 

@@ -16,17 +16,23 @@ const mage = (x: number, y: number) =>
 	human({ x, y }, { name: "Носитель", laws: ALL_LAWS, lore: { name: "Запас", value: 1000 } });
 
 describe("Пламя (L3-01)", () => {
-	test("Пламя: +15 всем в зоне, включая носителя", () => {
+	test("Пламя: +20 всем в зоне, включая носителя", () => {
 		const { world, e } = arena([mage(100, 100), wolf({ x: 130, y: 100 })]);
 		cast(world, must(e[0]), "L3-01", at({ x: 110, y: 100 }));
-		expect(eventsOf(world, "temperature", e[0]?.id)[0]?.after).toBe(15);
-		expect(eventsOf(world, "temperature", e[1]?.id)[0]?.after).toBe(15);
+		expect(eventsOf(world, "temperature", e[0]?.id)[0]?.after).toBe(20);
+		expect(eventsOf(world, "temperature", e[1]?.id)[0]?.after).toBe(20);
 	});
 
-	test("Пламя: горючее выше +30 загорается, сгорает и исчезает", () => {
+	test("Пламя: одно попадание обжигает, но не поджигает", () => {
+		const { world, e } = arena([mage(100, 100), tree({ x: 400, y: 100 })]);
+		cast(world, must(e[0]), "L3-01", at({ x: 400, y: 100 }));
+		expect(count(world, "ignited", e[1]?.id)).toBe(0);
+	});
+
+	test("Пламя: два попадания подряд (+30 и выше) поджигают горючее, оно сгорает и исчезает", () => {
 		const { world, e } = arena([mage(100, 100), tree({ x: 400, y: 100 })]);
 		const bearer = must(e[0]);
-		for (let i = 0; i < 3; i++) {
+		for (let i = 0; i < 2; i++) {
 			ready(bearer, "L3-01");
 			cast(world, bearer, "L3-01", at({ x: 400, y: 100 }));
 		}

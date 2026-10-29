@@ -8,6 +8,7 @@ import type { Seconds } from "./units.ts";
 export const FROSTBITE_TEMP = -10;
 export const LIMB_FREEZE_TEMP = -30;
 export const BURN_INJURY_TEMP = 10;
+/** Горение начинается при +30° и выше. Сколько для этого нужно попаданий, решает сила закона (прокачка) и состояние цели. */
 export const IGNITION_TEMP = 30;
 
 /** Ниже этой температуры вода замерзает (на клетке и на теле). */
