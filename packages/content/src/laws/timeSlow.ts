@@ -2,6 +2,7 @@
 // включая союзников и самого носителя, если он во времени. Длительность — в часах носителя.
 
 import { type LawDef, TIERS } from "@combollect/core";
+import { applyWorldTimeField } from "./worldTimeField.ts";
 
 export const timeSlow: LawDef = {
 	id: "L7-01",
@@ -25,22 +26,6 @@ export const timeSlow: LawDef = {
 		scarRadiusUnits: 64,
 	},
 	apply(ctx) {
-		const p = ctx.params;
-		const { requires, excludes } = ctx.law;
-		ctx.addTimeField({
-			factor: p.factor ?? 1,
-			durationSec: p.durationSec ?? 0,
-			requires,
-			excludes,
-			name: "Замедление времени",
-		});
-		ctx.addTimeField({
-			factor: p.scarFactor ?? 1,
-			durationSec: p.scarSec ?? 0,
-			requires,
-			excludes,
-			area: { center: ctx.bearer.position, radiusUnits: p.scarRadiusUnits ?? 0 },
-			name: "Временной шрам",
-		});
+		applyWorldTimeField(ctx, "Замедление времени");
 	},
 };

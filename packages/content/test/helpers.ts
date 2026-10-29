@@ -10,7 +10,7 @@ import {
 	type World,
 } from "@combollect/core";
 import { createTestWorld, eventsOf, runUntil } from "@combollect/core/testing";
-import { stage1Laws } from "../src/index.ts";
+import { allLaws, specialInteractions } from "../src/index.ts";
 
 export function arena(
 	entities: readonly SpawnSpec[],
@@ -18,7 +18,8 @@ export function arena(
 ): { world: World; e: Entity[] } {
 	const { world, entities: spawned } = createTestWorld({
 		seed: 1,
-		laws: stage1Laws,
+		laws: allLaws,
+		interactions: specialInteractions,
 		grid: { width: 40, height: 40, ...(surfaceAt ? { surfaceAt } : {}) },
 		entities,
 	});

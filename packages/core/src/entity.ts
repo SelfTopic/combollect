@@ -22,7 +22,12 @@ export interface Clock {
 export type LawTarget =
 	| { readonly kind: "none" }
 	| { readonly kind: "point"; readonly point: Vec2 }
-	| { readonly kind: "entity"; readonly id: EntityId };
+	| {
+			readonly kind: "entity";
+			readonly id: EntityId;
+			/** Куда на теле цели направлен удар (для законов, которые выбирают зону). */
+			readonly aim?: Vec2;
+	  };
 
 /** Запланированное действие. См. docs/06-time-system.md, правило 4. */
 export type PlannedAction =
