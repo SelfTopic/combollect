@@ -2,7 +2,7 @@
 
 import { updateBurning } from "./api/effects.ts";
 import { computeRate } from "./clock.ts";
-import type { Entity, ProjectileData, Wetness } from "./entity.ts";
+import type { Entity, ProjectileData, TeamId, Wetness } from "./entity.ts";
 import type { Cause, LawId } from "./events.ts";
 import { dryingTime } from "./physics.ts";
 import type { TagId } from "./tags.ts";
@@ -12,6 +12,7 @@ import { emit, type World } from "./world.ts";
 export interface SpawnSpec {
 	readonly name: string;
 	readonly tags: readonly TagId[];
+	readonly team?: TeamId;
 	readonly position: Vec2;
 	readonly velocity?: Vec2;
 	readonly health: number;
@@ -33,6 +34,7 @@ export function spawn(world: World, spec: SpawnSpec, cause: Cause = {}): Entity 
 		id: world.nextId++,
 		name: spec.name,
 		tags,
+		team: spec.team ?? null,
 		state: {
 			temperature: spec.temperature ?? 0,
 			wetness: spec.wetness ?? "dry",

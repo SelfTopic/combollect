@@ -108,11 +108,19 @@ export interface EntityStats {
 	readonly moveSpeed: number;
 }
 
+/**
+ * Команда — служебное поле. Законы его не читают (docs/01-lore-integrity.md, правило 2):
+ * его читают только условия победы, интерфейс и будущая мутация избирательности.
+ */
+export type TeamId = string;
+
 export interface Entity {
 	readonly id: EntityId;
 	/** Имя для журнала. */
 	readonly name: string;
 	readonly tags: Set<TagId>;
+	/** null — ничья (деревья, камни, снаряды). */
+	readonly team: TeamId | null;
 	readonly state: EntityState;
 	readonly resources: Resources;
 	position: Vec2;

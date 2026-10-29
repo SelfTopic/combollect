@@ -11,6 +11,7 @@ import { projectileSystem } from "./systems/projectile.ts";
 import { thermalSystem } from "./systems/thermal.ts";
 import { traceSystem } from "./systems/trace.ts";
 import { wetnessSystem } from "./systems/wetness.ts";
+import { checkVictory } from "./victory.ts";
 import type { World } from "./world.ts";
 
 export const SYSTEMS: readonly ((world: World) => void)[] = [
@@ -27,7 +28,10 @@ export const SYSTEMS: readonly ((world: World) => void)[] = [
 	deathSystem,
 ];
 
+/** Один тик. Когда матч окончен, мир больше не меняется. */
 export function step(world: World): void {
+	if (world.result !== null) return;
 	for (const system of SYSTEMS) system(world);
+	checkVictory(world);
 	world.tick += 1;
 }

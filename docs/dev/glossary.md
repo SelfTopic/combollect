@@ -36,6 +36,8 @@
 | Горение | `state.burning` |
 | Сотрясение | `state.concussionSec` |
 | Старение (лорная цена) | `cost.lore.agingMaxHealthPct` |
+| Команда (служебное поле, законы не читают) | `team`, `TeamId` |
+| Условие победы | `VictoryCondition`, итог — `VictoryResult`, `world.result` |
 | Существо (тестовый набор меток) | функции в `content/creatures.ts`: `human`, `outOfTimeHuman`, `wolf`, `stoneGolem`, `tree`, `rock` |
 
 ## Уровни

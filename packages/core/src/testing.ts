@@ -6,6 +6,7 @@ import { createGrid, type Grid, type Surface } from "./grid.ts";
 import { type SpawnSpec, spawn } from "./spawn.ts";
 import { step } from "./step.ts";
 import { TICKS_PER_SECOND } from "./units.ts";
+import type { VictoryCondition } from "./victory.ts";
 import { createWorld, type LawRegistry, type World } from "./world.ts";
 
 export interface TestGridSpec {
@@ -20,6 +21,7 @@ export interface TestWorldSpec {
 	readonly laws?: LawRegistry;
 	readonly grid?: Grid | TestGridSpec;
 	readonly entities?: readonly SpawnSpec[];
+	readonly victoryConditions?: readonly VictoryCondition[];
 }
 
 export function createTestWorld(spec: TestWorldSpec = {}): { world: World; entities: Entity[] } {
@@ -28,7 +30,12 @@ export function createTestWorld(spec: TestWorldSpec = {}): { world: World; entit
 		"cells" in gridSpec
 			? gridSpec
 			: createGrid(gridSpec.width, gridSpec.height, gridSpec.surfaceAt);
-	const world = createWorld({ seed: spec.seed ?? 1, grid, laws: spec.laws ?? new Map() });
+	const world = createWorld({
+		seed: spec.seed ?? 1,
+		grid,
+		laws: spec.laws ?? new Map(),
+		...(spec.victoryConditions !== undefined ? { victoryConditions: spec.victoryConditions } : {}),
+	});
 	const entities = (spec.entities ?? []).map((s) => spawn(world, s));
 	return { world, entities };
 }

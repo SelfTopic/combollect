@@ -7,6 +7,7 @@ import type { LawDef } from "./law.ts";
 import { createRng, type Rng } from "./rng.ts";
 import type { TagQuery } from "./tags.ts";
 import type { EntityId, Seconds, Units, Vec2 } from "./units.ts";
+import type { VictoryCondition, VictoryResult } from "./victory.ts";
 
 /**
  * Активное изменение течения времени. Длительность считается в часах носителя.
@@ -57,9 +58,20 @@ export interface World {
 	nextEffectId: number;
 	/** Определения законов. Это код, а не состояние, поэтому в сериализацию мира не входит. */
 	readonly laws: LawRegistry;
+	/** Условия победы — тоже код (docs/15-match-goals.md). */
+	readonly victoryConditions: readonly VictoryCondition[];
+	/** Итог матча; пока null, бой идёт. После итога мир больше не тикает. */
+	result: VictoryResult | null;
 }
 
-export function createWorld(options: { seed: number; grid: Grid; laws: LawRegistry }): World {
+export interface WorldOptions {
+	readonly seed: number;
+	readonly grid: Grid;
+	readonly laws: LawRegistry;
+	readonly victoryConditions?: readonly VictoryCondition[];
+}
+
+export function createWorld(options: WorldOptions): World {
 	return {
 		tick: 0,
 		rng: createRng(options.seed),
@@ -71,6 +83,8 @@ export function createWorld(options: { seed: number; grid: Grid; laws: LawRegist
 		nextId: 1,
 		nextEffectId: 1,
 		laws: options.laws,
+		victoryConditions: options.victoryConditions ?? [],
+		result: null,
 	};
 }
 

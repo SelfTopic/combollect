@@ -19,4 +19,5 @@ export * from "./step.ts";
 export * from "./systems/plan.ts";
 export * from "./tags.ts";
 export * from "./units.ts";
+export * from "./victory.ts";
 export * from "./world.ts";

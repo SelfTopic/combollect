@@ -22,6 +22,7 @@ const SYSTEM_NAMES: Readonly<Record<string, string>> = {
 	body: "тело",
 	trace: "след на карте",
 	death: "смерть",
+	victory: "цель матча",
 };
 
 const ZONES: Readonly<Record<string, string>> = {
@@ -156,6 +157,8 @@ export class JournalPrinter {
 				return `🔥 ${this.cell(ev.cell)}: трава загорается`;
 			case "waterCharged":
 				return `⚡ ток остаётся в воде (${num(ev.after)} клеток)${why}`;
+			case "matchEnded":
+				return `🏁 Матч окончен: ${ev.note}`;
 		}
 	}
 

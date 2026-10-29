@@ -38,7 +38,8 @@ export type EventKind =
 	| "cellSurface"
 	| "cellMoisture"
 	| "cellIgnited"
-	| "waterCharged";
+	| "waterCharged"
+	| "matchEnded";
 
 export type SystemName =
 	| "clock"
@@ -51,7 +52,8 @@ export type SystemName =
 	| "conduction"
 	| "body"
 	| "trace"
-	| "death";
+	| "death"
+	| "victory";
 
 /** Причина изменения: какой закон, чья сущность, какая система мира. */
 export interface Cause {
