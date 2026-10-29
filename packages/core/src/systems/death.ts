@@ -12,7 +12,13 @@ export function deathSystem(world: World): void {
 			emit(world, { kind: "entityRemoved", target: entity.id, cause: DEATH, note: entity.name });
 		} else if (entity.resources.health <= 0) {
 			world.entities.delete(entity.id);
-			emit(world, { kind: "death", target: entity.id, cause: DEATH, note: entity.name });
+			emit(world, {
+				kind: "death",
+				target: entity.id,
+				cause: DEATH,
+				note: entity.name,
+				at: entity.position,
+			});
 		}
 	}
 }

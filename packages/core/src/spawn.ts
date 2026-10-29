@@ -77,7 +77,14 @@ export function spawn(world: World, spec: SpawnSpec, cause: Cause = {}): Entity 
 	// застывает, едва покинув руку (docs/06-time-system.md, правило 1).
 	entity.clock.rate = computeRate(world, entity);
 	world.entities.set(entity.id, entity);
-	emit(world, { kind: "entitySpawned", target: entity.id, cause, note: entity.name });
+	emit(world, {
+		kind: "entitySpawned",
+		target: entity.id,
+		cause,
+		note: entity.name,
+		after: entity.clock.rate,
+		at: entity.position,
+	});
 	// Появившееся уже раскалённым горит сразу, даже если его время стоит.
 	updateBurning(world, entity, cause);
 	return entity;

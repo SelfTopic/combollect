@@ -53,7 +53,13 @@ function fly(world: World, projectile: Entity, targets: readonly Entity[]): void
 	if (best !== null) {
 		projectile.position = add(projectile.position, scale(dir, best.at));
 		projectile.state.removed = true;
-		emit(world, { kind: "projectileHit", target: best.target.id, cause, note: projectile.name });
+		emit(world, {
+			kind: "projectileHit",
+			target: best.target.id,
+			cause,
+			note: `${projectile.name} #${projectile.id}`,
+			at: projectile.position,
+		});
 		damage(world, best.target, data.damage, cause);
 		return;
 	}

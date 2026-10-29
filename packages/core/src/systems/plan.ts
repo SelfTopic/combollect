@@ -15,12 +15,23 @@ export function canAct(entity: Entity): boolean {
 	return isAlive(entity) && entity.clock.rate > 0;
 }
 
-export function describeAction(action: PlannedAction): string {
+function describePoint(point: { readonly x: number; readonly y: number }): string {
+	return `(${Math.round(point.x)}, ${Math.round(point.y)})`;
+}
+
+/** Действие словами — для журнала. */
+export function describeAction(world: World, entity: Entity, action: PlannedAction): string {
 	switch (action.kind) {
 		case "move":
-			return `идти в (${Math.round(action.to.x)}, ${Math.round(action.to.y)})`;
-		case "useLaw":
-			return `закон в слоте ${action.slot}`;
+			return `идти в ${describePoint(action.to)}`;
+		case "useLaw": {
+			const slot = entity.laws[action.slot];
+			const name = slot === undefined ? `слот ${action.slot}` : slotDef(world, slot).name;
+			const target = action.target;
+			if (target.kind === "point") return `«${name}» в точку ${describePoint(target.point)}`;
+			if (target.kind === "entity") return `«${name}» на #${target.id}`;
+			return `«${name}»`;
+		}
 		case "attack":
 			return `атаковать #${action.targetId}`;
 	}
@@ -44,7 +55,7 @@ export function issueCommand(
 		target: entity.id,
 		cause: { sourceId: entity.id },
 		after: queued ? "в план" : "сразу",
-		note: describeAction(action),
+		note: describeAction(world, entity, action),
 	});
 }
 
@@ -58,7 +69,7 @@ function skip(world: World, entity: Entity, action: PlannedAction, reason: strin
 		kind: "planSkipped",
 		target: entity.id,
 		cause: { system: "plan" },
-		note: `${describeAction(action)}: ${reason}`,
+		note: `${describeAction(world, entity, action)}: ${reason}`,
 	});
 }
 
@@ -77,7 +88,7 @@ function tryLaw(world: World, entity: Entity, action: PlannedAction, slot: numbe
 		kind: "planStep",
 		target: entity.id,
 		cause: { system: "plan" },
-		note: describeAction(action),
+		note: describeAction(world, entity, action),
 	});
 	return entity.state.windup === null;
 }
@@ -93,7 +104,7 @@ function processPlan(world: World, entity: Entity): void {
 				kind: "planStep",
 				target: entity.id,
 				cause: { system: "plan" },
-				note: describeAction(head),
+				note: describeAction(world, entity, head),
 			});
 			continue;
 		}

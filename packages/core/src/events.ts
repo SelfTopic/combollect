@@ -68,6 +68,8 @@ export interface GameEvent {
 	readonly target?: EntityId;
 	/** Индекс клетки карты, если событие о клетке. */
 	readonly cell?: number;
+	/** Где это случилось (появление, смерть, попадание). */
+	readonly at?: Vec2;
 	readonly cause: Cause;
 	readonly before?: EventValue;
 	readonly after?: EventValue;
