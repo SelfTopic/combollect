@@ -72,3 +72,34 @@ describe("Обход препятствий", () => {
 		expect(a.position.x).toBeCloseTo(500, 0);
 	});
 });
+
+describe("Подойти и применить", () => {
+	test("План: закон с «подойти» сначала подходит к далёкой цели, потом применяется", () => {
+		const { world, a, b } = pair();
+		issueCommand(world, a, {
+			kind: "useLaw",
+			slot: 0,
+			target: { kind: "entity", id: b.id },
+			approach: true,
+		});
+		runSeconds(world, 2);
+		expect(b.resources.health).toBe(90);
+		expect(eventsOf(world, "planSkipped", a.id)).toHaveLength(0);
+	});
+
+	test("План: тот же закон без «подойти» на далёкую цель пропускается", () => {
+		const { world, a, b } = pair();
+		issueCommand(world, a, { kind: "useLaw", slot: 0, target: { kind: "entity", id: b.id } });
+		runSeconds(world, 2);
+		expect(b.resources.health).toBe(100);
+		expect(eventsOf(world, "planSkipped", a.id)[0]?.note).toContain("слишком далеко");
+	});
+
+	test("Журнал: применение закона записывает, куда он направлен", () => {
+		const { world, a, b } = pair();
+		b.position = { x: 140, y: 100 };
+		issueCommand(world, a, { kind: "useLaw", slot: 0, target: { kind: "entity", id: b.id } });
+		runSeconds(world, 0.5);
+		expect(eventsOf(world, "lawApplied", a.id)[0]?.at).toEqual({ x: 140, y: 100 });
+	});
+});

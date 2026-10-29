@@ -130,6 +130,9 @@ function processPlan(world: World, entity: Entity): void {
 			continue;
 		}
 		if (head.kind === "useLaw") {
+			// Подойти к цели (это делает movementSystem), действие остаётся в плане.
+			if (head.approach === true && whyCannotUse(world, entity, head.slot, head.target) === TOO_FAR)
+				return;
 			if (!tryLaw(world, entity, head, head.slot)) return;
 			continue;
 		}

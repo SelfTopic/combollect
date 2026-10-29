@@ -132,7 +132,8 @@ export function completeLaw(
 		});
 	}
 	slot.cooldownSec = cooldownOf(def, slot);
-	emit(world, { kind: "lawApplied", target: bearer.id, cause, note: def.name });
+	const at = resolvePoint(world, bearer, target) ?? bearer.position;
+	emit(world, { kind: "lawApplied", target: bearer.id, cause, note: def.name, at });
 	def.apply(createLawContext(world, def, slot, bearer, target, cause));
 	// Лорная цена платится за применение (docs/04-laws-catalog.md, L7-01: «за применение»).
 	if (def.cost.lore !== null) applyAging(world, bearer, def.cost.lore.agingMaxHealthPct, cause);

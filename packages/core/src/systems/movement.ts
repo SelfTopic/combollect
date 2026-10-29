@@ -3,7 +3,7 @@
 import { addVelocity, damage } from "../api/deliver.ts";
 import { speedFactor } from "../body.ts";
 import { localDt } from "../clock.ts";
-import { type Entity, isAlive } from "../entity.ts";
+import { type Entity, isAlive, type LawSlot } from "../entity.ts";
 import type { Cause } from "../events.ts";
 import { CELL_SIZE, cellAt } from "../grid.ts";
 import {
@@ -38,10 +38,28 @@ function clampToGrid(world: World, point: Vec2): Vec2 {
 /** Куда идти по плану и на каком расстоянии остановиться. */
 function walkGoal(world: World, entity: Entity): { point: Vec2; stopAt: number } | null {
 	const head = entity.plan[0];
-	if (head === undefined || head.kind === "useLaw") return null;
+	if (head === undefined) return null;
 	if (head.kind === "move") return { point: head.to, stopAt: 0 };
-	const target = world.entities.get(head.targetId);
-	const slot = entity.laws[basicAttackSlot(world, entity)];
+	if (head.kind === "useLaw") {
+		if (head.approach !== true) return null;
+		const slot = entity.laws[head.slot];
+		if (head.target.kind === "point" && slot !== undefined) {
+			const range = slot.params.rangeUnits ?? 0;
+			return { point: head.target.point, stopAt: Math.max(0, range - REACH_MARGIN) };
+		}
+		return head.target.kind === "entity" ? approachGoal(world, entity, head.target.id, slot) : null;
+	}
+	return approachGoal(world, entity, head.targetId, entity.laws[basicAttackSlot(world, entity)]);
+}
+
+/** Подойти к сущности на дальность закона. */
+function approachGoal(
+	world: World,
+	entity: Entity,
+	targetId: number,
+	slot: LawSlot | undefined,
+): { point: Vec2; stopAt: number } | null {
+	const target = world.entities.get(targetId);
 	if (target === undefined || !isAlive(target) || slot === undefined) return null;
 	const reach = (slot.params.rangeUnits ?? 0) + entity.stats.radiusUnits + target.stats.radiusUnits;
 	// Чуть ближе дальности удара, чтобы не застыть на самой границе из-за округления.

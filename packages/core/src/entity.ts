@@ -32,7 +32,13 @@ export type LawTarget =
 /** Запланированное действие. См. docs/06-time-system.md, правило 4. */
 export type PlannedAction =
 	| { readonly kind: "move"; readonly to: Vec2 }
-	| { readonly kind: "useLaw"; readonly slot: number; readonly target: LawTarget }
+	| {
+			readonly kind: "useLaw";
+			readonly slot: number;
+			readonly target: LawTarget;
+			/** Цель дальше дальности закона — сначала подойти, а не пропустить. */
+			readonly approach?: boolean;
+	  }
 	| {
 			readonly kind: "attack";
 			readonly targetId: EntityId;
