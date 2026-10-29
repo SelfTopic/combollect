@@ -1,0 +1,9 @@
+{
+	"name": "@combollect/sim",
+	"private": true,
+	"type": "module",
+	"dependencies": {
+		"@combollect/content": "workspace:*",
+		"@combollect/core": "workspace:*"
+	}
+}
