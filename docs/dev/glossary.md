@@ -36,6 +36,11 @@
 | Горение | `state.burning` |
 | Сотрясение | `state.concussionSec` |
 | Старение (лорная цена) | `cost.lore.agingMaxHealthPct` |
+| Кровопотеря: открытая рана (один стак) | `Wound`, `state.wounds` |
+| Кровавый след на клетке | `BloodTrace`, `cell.blood` |
+| Пройденный ногами путь за тик / направление шага | `state.walkedUnits`, `state.heading` |
+| Хрупкость тела (зоны теряют целостность быстрее) | `stats.fragility` |
+| Восстановление ресурса стоя на месте | `lore.standingRegenPerSec` |
 | Команда (служебное поле, законы не читают) | `team`, `TeamId` |
 | Условие победы | `VictoryCondition`, итог — `VictoryResult`, `world.result` |
 | Существо (тестовый набор меток) | функции в `content/creatures.ts`: `human`, `outOfTimeHuman`, `wolf`, `stoneGolem`, `tree`, `rock` |

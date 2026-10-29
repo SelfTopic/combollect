@@ -2,7 +2,7 @@
 
 import { changeCellTemperature } from "./api/cells.ts";
 import { chargeWater, conductionGraph } from "./api/conduction.ts";
-import { changeTemperature, damage, damageZone, push } from "./api/deliver.ts";
+import { changeTemperature, damage, damageZone, push, wound } from "./api/deliver.ts";
 import { applyAging } from "./api/effects.ts";
 import { canGesture, isConcussed } from "./body.ts";
 import { addTimeField } from "./clock.ts";
@@ -160,6 +160,7 @@ function createLawContext(
 		changeTemperature: (entity, delta) => changeTemperature(world, entity, delta, cause),
 		damage: (entity, amount) => damage(world, entity, amount, cause),
 		damageZone: (entity, zone, amountPct) => damageZone(world, entity, zone, amountPct, cause),
+		wound: (entity, w) => wound(world, entity, w, cause),
 		push: (entity, direction, dist) => push(world, entity, direction, dist, cause),
 		changeCellTemperature: (cell, delta) => changeCellTemperature(world, cell, delta, cause),
 		cellsInRadius: (center, radius) => cellsInRadius(world.grid, center, radius),

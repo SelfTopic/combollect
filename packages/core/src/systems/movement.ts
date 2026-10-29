@@ -105,13 +105,17 @@ function walk(world: World, entity: Entity, dt: number, solids: readonly Entity[
 	const blocked = solids.some(
 		(o) => o !== entity && o.tags.has("Terrain") && overlaps(entity, next, o),
 	);
-	if (!blocked) entity.position = next;
+	if (blocked) return;
+	entity.state.walkedUnits = distance(entity.position, next);
+	if (entity.state.walkedUnits > 0) entity.state.heading = normalize(sub(next, entity.position));
+	entity.position = next;
 }
 
 export function movementSystem(world: World): void {
 	const entities = entitiesInOrder(world);
 	const solids = entities.filter(isSolid);
 	for (const entity of entities) {
+		entity.state.walkedUnits = 0;
 		if (!isAlive(entity) || entity.tags.has("Projectile")) continue;
 		const dt = localDt(entity);
 		if (dt === 0) continue;

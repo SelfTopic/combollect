@@ -1,13 +1,14 @@
 // Немедленные изменения состояний и ресурсов. Каждое пишет событие с причиной.
 // Законы зовут их через deliver.ts, чтобы остановленные сущности копили удары.
 
-import type { BodyZone, Entity, Wetness } from "../entity.ts";
+import { BODY_ZONES, type BodyZone, type Entity, type Wetness, type Wound } from "../entity.ts";
 import type { Cause } from "../events.ts";
 import {
 	CONCUSSION_SEC,
 	dryingTime,
 	EVAPORATION_HEAT,
 	IGNITION_TEMP,
+	REGEN_WOUND_CLOSE_SEC,
 	WET_COOLING_MULTIPLIER,
 } from "../physics.ts";
 import { add, type Vec2 } from "../units.ts";
@@ -96,7 +97,8 @@ export function applyDamage(
 	if (amount <= 0) return;
 	const res = entity.resources;
 	const before = res.health;
-	res.health = Math.max(0, before - amount);
+	// Торс — тоже зона: хрупкое тело теряет и его целостность быстрее.
+	res.health = Math.max(0, before - amount * entity.stats.fragility);
 	syncTorso(entity);
 	emit(world, {
 		kind: "health",
@@ -132,7 +134,7 @@ export function applyZoneDamage(
 		return;
 	}
 	const before = body[zone];
-	body[zone] = Math.max(0, before - amountPct);
+	body[zone] = Math.max(0, before - amountPct * entity.stats.fragility);
 	emit(world, {
 		kind: "bodyZone",
 		target: entity.id,
@@ -164,4 +166,81 @@ export function applyAging(world: World, entity: Entity, pct: number, cause: Cau
 	res.health = Math.min(res.health, res.maxHealth);
 	syncTorso(entity);
 	emit(world, { kind: "maxHealth", target: entity.id, cause, before, after: res.maxHealth });
+}
+
+/** Лечение здоровья (а значит, и торса) — не выше максимума. */
+export function applyHealing(
+	world: World,
+	entity: Entity,
+	amount: number,
+	cause: Cause,
+	minor = false,
+): void {
+	const res = entity.resources;
+	const before = res.health;
+	const after = Math.min(res.maxHealth, before + amount);
+	if (amount <= 0 || after === before) return;
+	res.health = after;
+	syncTorso(entity);
+	emit(world, {
+		kind: "health",
+		target: entity.id,
+		cause,
+		before,
+		after,
+		...(minor ? { minor: true } : {}),
+	});
+}
+
+/** Восстановить зоны тела (кроме торса — он следует за здоровьем). */
+export function healZones(world: World, entity: Entity, pct: number, cause: Cause): void {
+	const body = entity.state.body;
+	if (body === null || pct <= 0) return;
+	for (const zone of BODY_ZONES) {
+		if (zone === "torso" || body[zone] >= 100) continue;
+		const before = body[zone];
+		body[zone] = Math.min(100, before + pct);
+		emit(world, {
+			kind: "bodyZone",
+			target: entity.id,
+			cause,
+			before,
+			after: body[zone],
+			note: zone,
+			minor: true,
+		});
+	}
+}
+
+/** Новая открытая рана. Кровоточить может только то, у чего есть кровь (`Blood`). */
+export function applyWound(world: World, entity: Entity, wound: Wound, cause: Cause): void {
+	if (!entity.tags.has("Blood")) return;
+	const wounds = entity.state.wounds;
+	const before = wounds.length;
+	if (before === 0) entity.state.woundHealSec = REGEN_WOUND_CLOSE_SEC;
+	wounds.push({ ...wound, cause });
+	emit(world, { kind: "bleeding", target: entity.id, cause, before, after: wounds.length });
+}
+
+/** Закрыть раны: `count` самых старых, или все (прижигание). */
+export function closeWounds(
+	world: World,
+	entity: Entity,
+	cause: Cause,
+	count = Number.POSITIVE_INFINITY,
+	note?: string,
+): void {
+	const wounds = entity.state.wounds;
+	const before = wounds.length;
+	if (before === 0) return;
+	wounds.splice(0, Math.min(before, count));
+	entity.state.woundHealSec = REGEN_WOUND_CLOSE_SEC;
+	emit(world, {
+		kind: "bleeding",
+		target: entity.id,
+		cause,
+		before,
+		after: wounds.length,
+		...(note !== undefined ? { note } : {}),
+	});
 }

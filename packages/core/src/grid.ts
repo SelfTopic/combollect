@@ -18,6 +18,16 @@ export interface CellTrace {
 	remainingSec: Seconds;
 }
 
+/**
+ * Кровавый след (docs/09-map.md: «Кровь — след + направление»). Лежит поверх любой
+ * поверхности и не меняет её. Угасает в часах клетки.
+ */
+export interface BloodTrace {
+	remainingSec: Seconds;
+	/** Куда шёл раненый: видно, куда он ушёл. */
+	readonly heading: Vec2;
+}
+
 export interface Cell {
 	surface: Surface;
 	/** Поверхность, которая вернётся, когда след угаснет. */
@@ -31,6 +41,7 @@ export interface Cell {
 	/** Сколько ещё горит трава на клетке (0 — не горит). */
 	burningSec: Seconds;
 	trace: CellTrace | null;
+	blood: BloodTrace | null;
 }
 
 export interface Grid {
@@ -51,6 +62,7 @@ export function createCell(surface: Surface): Cell {
 		evaporationHeat: 0,
 		burningSec: 0,
 		trace: null,
+		blood: null,
 	};
 }
 

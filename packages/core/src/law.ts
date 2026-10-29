@@ -1,7 +1,7 @@
 // Закон — данные + обработчик. См. docs/dev/architecture.md, «Законы», и шаблон docs/04-laws-catalog.md.
 
 import type { ConductionGraph } from "./api/conduction.ts";
-import type { BodyZone, Entity, LawTarget } from "./entity.ts";
+import type { BodyZone, Entity, LawTarget, Wound } from "./entity.ts";
 import { effectiveTags } from "./entityTags.ts";
 import type { Cause, LawId } from "./events.ts";
 import type { SpawnSpec } from "./spawn.ts";
@@ -91,6 +91,8 @@ export interface LawContext {
 	changeTemperature(entity: Entity, delta: number): void;
 	damage(entity: Entity, amount: number): void;
 	damageZone(entity: Entity, zone: BodyZone, amountPct: number): void;
+	/** Открыть рану (стак кровопотери). На тех, у кого нет крови, не действует. */
+	wound(entity: Entity, wound: Wound): void;
 	/** Толчок: дистанция для массы «средняя» на обычной земле. */
 	push(entity: Entity, direction: Vec2, distance: Units): void;
 	changeCellTemperature(cell: number, delta: number): void;

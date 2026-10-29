@@ -4,6 +4,7 @@ import { attackFactor, canGesture, castFactor, isConcussed } from "../body.ts";
 import { localDt } from "../clock.ts";
 import { isAlive } from "../entity.ts";
 import { completeLaw, slotDef } from "../lawRunner.ts";
+import { length } from "../units.ts";
 import { emit, entitiesInOrder, type World } from "../world.ts";
 
 export function lawSystem(world: World): void {
@@ -13,7 +14,10 @@ export function lawSystem(world: World): void {
 		if (dt === 0) continue;
 		const lore = entity.resources.lore;
 		if (lore !== null && lore.value < lore.max) {
-			lore.value = Math.min(lore.max, lore.value + lore.regenPerSec * dt);
+			// «Стоит на месте» — не шёл в прошлом тике и не летит от толчка.
+			const standing = entity.state.walkedUnits === 0 && length(entity.velocity) === 0;
+			const regen = standing ? lore.standingRegenPerSec : lore.regenPerSec;
+			lore.value = Math.min(lore.max, lore.value + regen * dt);
 		}
 		for (const slot of entity.laws) {
 			if (slot.cooldownSec <= 0) continue;

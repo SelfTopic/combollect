@@ -10,6 +10,11 @@ const TRACE: Cause = { system: "trace" };
 export function traceSystem(world: World): void {
 	const grid = world.grid;
 	grid.cells.forEach((cell, index) => {
+		const blood = cell.blood;
+		if (blood !== null) {
+			blood.remainingSec -= WORLD_DT * (grid.rates[index] ?? 1);
+			if (blood.remainingSec <= 1e-9) cell.blood = null;
+		}
 		const trace = cell.trace;
 		if (trace === null) return;
 		trace.remainingSec -= WORLD_DT * (grid.rates[index] ?? 1);

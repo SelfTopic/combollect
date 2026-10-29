@@ -80,3 +80,8 @@ export function friction(surface: Surface): number {
 export const IMPACT_DAMAGE_PER_SPEED = 0.05;
 /** Медленнее этого столкновение — просто касание. */
 export const IMPACT_MIN_SPEED = 100;
+
+/** Регенерация (`Regenerating`): зоны тела, % целостности в секунду своего времени. */
+export const REGEN_ZONE_PCT_PER_SEC = 1;
+/** Регенерация закрывает одну открытую рану за это время. */
+export const REGEN_WOUND_CLOSE_SEC: Seconds = 10;

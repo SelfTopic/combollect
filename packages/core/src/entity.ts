@@ -1,6 +1,6 @@
 // Сущность и её атомы: метки, состояния, ресурсы. См. docs/02-atoms.md и docs/dev/architecture.md.
 
-import type { LawId } from "./events.ts";
+import type { Cause, LawId } from "./events.ts";
 import type { TagId } from "./tags.ts";
 import type { EntityId, Seconds, Units, Vec2 } from "./units.ts";
 
@@ -51,9 +51,28 @@ export interface Windup {
  */
 export type PendingEffect =
 	| { readonly kind: "damage"; readonly amount: number }
+	| { readonly kind: "wound"; readonly wound: Wound }
 	| { readonly kind: "zone"; readonly zone: BodyZone; readonly amountPct: number }
 	| { readonly kind: "velocity"; readonly delta: Vec2 }
 	| { readonly kind: "temperature"; readonly delta: number };
+
+/**
+ * Открытая рана — один стак кровопотери (docs/02-atoms.md, «Кровопотеря»; docs/04-laws-catalog.md, L1-02).
+ * Числа приходят из параметров закона, который нанёс рану.
+ */
+export interface Wound {
+	/** Сколько здоровья теряется за каждые 100 единиц пройденного пути. */
+	readonly healthPer100Units: number;
+	/** Сколько здоровья теряется в секунду стоя. */
+	readonly healthPerSecStanding: number;
+	/** Сколько секунд (по часам клетки) держится кровавый след. */
+	readonly trailSec: Seconds;
+}
+
+export interface OpenWound extends Wound {
+	/** Кто и чем нанёс рану — чтобы журнал объяснял, от чего истёк кровью. */
+	readonly cause: Cause;
+}
 
 export interface PendingHit {
 	readonly effect: PendingEffect;
@@ -74,6 +93,14 @@ export interface EntityState {
 	body: BodyZones | null;
 	/** Сотрясение: сколько своего времени нельзя применять законы. */
 	concussionSec: Seconds;
+	/** Открытые раны: каждая — стак кровопотери. Только у сущностей с меткой `Blood`. */
+	wounds: OpenWound[];
+	/** Сколько своего времени осталось до того, как регенерация закроет следующую рану. */
+	woundHealSec: Seconds;
+	/** Сколько сущность прошла ногами за последний тик (0 — стоит). Кровь течёт при движении. */
+	walkedUnits: Units;
+	/** Куда она шла в последний раз — направление кровавого следа. */
+	heading: Vec2;
 	windup: Windup | null;
 	pending: PendingHit[];
 	/** Сущность ушла из мира не через смерть (снаряд долетел). */
@@ -86,6 +113,8 @@ export interface LoreResource {
 	value: number;
 	max: number;
 	regenPerSec: number;
+	/** Восстановление, пока носитель стоит на месте (Хронист «копит» время в себе). */
+	standingRegenPerSec: number;
 }
 
 export interface Resources {
@@ -106,6 +135,11 @@ export interface EntityStats {
 	readonly radiusUnits: Units;
 	/** Скорость ходьбы при целом теле и обычном времени. */
 	readonly moveSpeed: number;
+	/**
+	 * Хрупкость тела: во сколько раз быстрее зоны теряют целостность (1 — обычное тело).
+	 * docs/07-heroes.md, Хронист: «зоны теряют целостность на 30% быстрее».
+	 */
+	readonly fragility: number;
 }
 
 /**

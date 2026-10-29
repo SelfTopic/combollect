@@ -19,10 +19,19 @@ export interface SpawnSpec {
 	readonly radiusUnits?: Units;
 	readonly moveSpeed?: number;
 	readonly laws?: readonly LawId[];
-	readonly lore?: { readonly name: string; readonly value: number; readonly regenPerSec?: number };
+	readonly lore?: LoreSpec;
+	readonly fragility?: number;
 	readonly temperature?: number;
 	readonly wetness?: Wetness;
 	readonly projectile?: ProjectileData;
+}
+
+export interface LoreSpec {
+	readonly name: string;
+	readonly value: number;
+	readonly regenPerSec?: number;
+	/** По умолчанию — как обычное восстановление. */
+	readonly standingRegenPerSec?: number;
 }
 
 export const DEFAULT_RADIUS: Units = 16;
@@ -43,6 +52,10 @@ export function spawn(world: World, spec: SpawnSpec, cause: Cause = {}): Entity 
 			burning: false,
 			body: tags.has("Limbs") ? { head: 100, torso: 100, arms: 100, legs: 100 } : null,
 			concussionSec: 0,
+			wounds: [],
+			woundHealSec: 0,
+			walkedUnits: 0,
+			heading: ZERO,
 			windup: null,
 			pending: [],
 			removed: false,
@@ -58,6 +71,7 @@ export function spawn(world: World, spec: SpawnSpec, cause: Cause = {}): Entity 
 							value: spec.lore.value,
 							max: spec.lore.value,
 							regenPerSec: spec.lore.regenPerSec ?? 0,
+							standingRegenPerSec: spec.lore.standingRegenPerSec ?? spec.lore.regenPerSec ?? 0,
 						},
 		},
 		position: spec.position,
@@ -72,6 +86,7 @@ export function spawn(world: World, spec: SpawnSpec, cause: Cause = {}): Entity 
 		stats: {
 			radiusUnits: spec.radiusUnits ?? DEFAULT_RADIUS,
 			moveSpeed: spec.moveSpeed ?? DEFAULT_MOVE_SPEED,
+			fragility: spec.fragility ?? 1,
 		},
 		projectile: spec.projectile ?? null,
 	};

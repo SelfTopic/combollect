@@ -3,13 +3,25 @@
 // разом в момент возобновления. ДОПУЩЕНИЕ: так же копится и тепло/холод — «энергия передаётся,
 // но время не идёт» (docs/05-interactions.md). См. docs/dev/decisions.md.
 
-import { type BodyZone, type Entity, isStopped, type PendingEffect } from "../entity.ts";
+import {
+	type BodyZone,
+	type Entity,
+	isStopped,
+	type PendingEffect,
+	type Wound,
+} from "../entity.ts";
 import type { Cause } from "../events.ts";
 import { GROUND_DECELERATION } from "../physics.ts";
 import { massFactor } from "../tags.ts";
 import { normalize, scale, type Units, type Vec2 } from "../units.ts";
 import { emit, type World } from "../world.ts";
-import { applyDamage, applyTemperature, applyVelocity, applyZoneDamage } from "./effects.ts";
+import {
+	applyDamage,
+	applyTemperature,
+	applyVelocity,
+	applyWound,
+	applyZoneDamage,
+} from "./effects.ts";
 
 function applyEffect(world: World, entity: Entity, effect: PendingEffect, cause: Cause): void {
 	switch (effect.kind) {
@@ -24,6 +36,9 @@ function applyEffect(world: World, entity: Entity, effect: PendingEffect, cause:
 			return;
 		case "temperature":
 			applyTemperature(world, entity, effect.delta, cause);
+			return;
+		case "wound":
+			applyWound(world, entity, effect.wound, cause);
 			return;
 	}
 }
@@ -72,6 +87,11 @@ export function damageZone(
 	cause: Cause,
 ): void {
 	deliver(world, entity, { kind: "zone", zone, amountPct }, cause);
+}
+
+/** Нанести рану. Рана остановленному тоже ждёт: кровь пойдёт, когда пойдут его часы. */
+export function wound(world: World, entity: Entity, w: Wound, cause: Cause): void {
+	deliver(world, entity, { kind: "wound", wound: w }, cause);
 }
 
 export function changeTemperature(world: World, entity: Entity, delta: number, cause: Cause): void {
