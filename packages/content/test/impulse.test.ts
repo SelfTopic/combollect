@@ -1,8 +1,8 @@
 import type { SpawnSpec } from "@combollect/core";
 import { runSeconds } from "@combollect/core/testing";
 import { describe, expect, test } from "vitest";
-import { human, stoneGolem, wolf } from "../src/index.ts";
-import { arena, at, cast, must } from "./helpers.ts";
+import { human, rock, stoneGolem, throne, tree, wolf } from "../src/index.ts";
+import { arena, at, cast, must, ready } from "./helpers.ts";
 
 const ghost = (x: number, y: number): SpawnSpec => ({
 	name: "Призрак",
@@ -46,5 +46,24 @@ describe("Импульс (L2-01)", () => {
 		cast(world, must(e[0]), "L2-01", at({ x: 600, y: 400 }));
 		runSeconds(world, 1);
 		expect(e[1]?.position.x).toBe(500);
+	});
+});
+
+describe("Импульс и местность", () => {
+	test("Импульс: камень, дерево и трон вросли в землю — толчок их не сдвигает", () => {
+		const { world, e } = arena([
+			human({ x: 300, y: 300 }, { name: "Носитель", laws: ["L2-01"] }),
+			rock({ x: 380, y: 300 }),
+			tree({ x: 340, y: 360 }),
+			throne({ x: 340, y: 240 }, "east", "Трон"),
+		]);
+		const before = e.slice(1).map((x) => must(x).position);
+		cast(world, must(e[0]), "L2-01", at({ x: 400, y: 300 }));
+		ready(must(e[0]), "L2-01");
+		cast(world, must(e[0]), "L2-01", at({ x: 340, y: 360 }));
+		ready(must(e[0]), "L2-01");
+		cast(world, must(e[0]), "L2-01", at({ x: 340, y: 240 }));
+		runSeconds(world, 1);
+		expect(e.slice(1).map((x) => must(x).position)).toEqual(before);
 	});
 });

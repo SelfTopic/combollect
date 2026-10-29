@@ -153,6 +153,8 @@ export function applyZoneDamage(
 }
 
 export function applyVelocity(world: World, entity: Entity, delta: Vec2, cause: Cause): void {
+	// Местность вросла в землю: толчок не сдвигает её (ДОПУЩЕНИЕ, см. decisions.md, № 14).
+	if (entity.tags.has("Terrain")) return;
 	const before = entity.velocity;
 	entity.velocity = add(before, delta);
 	emit(world, { kind: "impulse", target: entity.id, cause, before, after: entity.velocity });
