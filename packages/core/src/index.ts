@@ -10,6 +10,7 @@ export * from "./entity.ts";
 export * from "./entityTags.ts";
 export * from "./events.ts";
 export * from "./grid.ts";
+export * from "./interaction.ts";
 export * from "./law.ts";
 export * from "./lawRunner.ts";
 export * from "./physics.ts";

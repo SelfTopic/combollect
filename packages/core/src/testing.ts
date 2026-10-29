@@ -3,6 +3,7 @@
 import type { Entity } from "./entity.ts";
 import type { EventKind, GameEvent } from "./events.ts";
 import { createGrid, type Grid, type Surface } from "./grid.ts";
+import type { SpecialInteraction } from "./interaction.ts";
 import { type SpawnSpec, spawn } from "./spawn.ts";
 import { step } from "./step.ts";
 import { TICKS_PER_SECOND } from "./units.ts";
@@ -22,6 +23,7 @@ export interface TestWorldSpec {
 	readonly grid?: Grid | TestGridSpec;
 	readonly entities?: readonly SpawnSpec[];
 	readonly victoryConditions?: readonly VictoryCondition[];
+	readonly interactions?: readonly SpecialInteraction[];
 }
 
 export function createTestWorld(spec: TestWorldSpec = {}): { world: World; entities: Entity[] } {
@@ -35,6 +37,7 @@ export function createTestWorld(spec: TestWorldSpec = {}): { world: World; entit
 		grid,
 		laws: spec.laws ?? new Map(),
 		...(spec.victoryConditions !== undefined ? { victoryConditions: spec.victoryConditions } : {}),
+		...(spec.interactions !== undefined ? { interactions: spec.interactions } : {}),
 	});
 	const entities = (spec.entities ?? []).map((s) => spawn(world, s));
 	return { world, entities };
