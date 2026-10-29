@@ -41,6 +41,11 @@
 | Пройденный ногами путь за тик / направление шага | `state.walkedUnits`, `state.heading` |
 | Хрупкость тела (зоны теряют целостность быстрее) | `stats.fragility` |
 | Восстановление ресурса стоя на месте | `lore.standingRegenPerSec` |
+| Трон | `throne()` в `content/throne.ts`, условие «трон уничтожен» — `throneDestroyed` |
+| Герой (шаблон из docs/07-heroes.md) | `HeroDef` в `content/heroes/`: `chronist`, `shadow`, `butcher` |
+| Арена этапа 2, матч | `createMatch`, `Match` в `content/arena.ts` |
+| Атака «пока цель жива» (ПКМ) | `PlannedAction` `attack` с `hold: true` |
+| Куда направлен удар по телу цели | `LawTarget.aim` |
 | Команда (служебное поле, законы не читают) | `team`, `TeamId` |
 | Условие победы | `VictoryCondition`, итог — `VictoryResult`, `world.result` |
 | Существо (тестовый набор меток) | функции в `content/creatures.ts`: `human`, `outOfTimeHuman`, `wolf`, `stoneGolem`, `tree`, `rock` |
