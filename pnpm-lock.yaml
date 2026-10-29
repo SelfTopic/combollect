@@ -32,6 +32,12 @@ importers:
 
   packages/core: {}
 
+  packages/journal:
+    dependencies:
+      '@combollect/core':
+        specifier: workspace:*
+        version: link:../core
+
   tools/sim:
     dependencies:
       '@combollect/content':
@@ -40,6 +46,9 @@ importers:
       '@combollect/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@combollect/journal':
+        specifier: workspace:*
+        version: link:../../packages/journal
 
 packages:
 

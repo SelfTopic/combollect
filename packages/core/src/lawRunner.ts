@@ -21,6 +21,11 @@ export function slotDef(world: World, slot: LawSlot): LawDef {
 	return def;
 }
 
+/** Номер слота закона у сущности; -1 — такого закона нет. Для команд игрока и сценариев. */
+export function lawSlotIndex(entity: Entity, lawId: string): number {
+	return entity.laws.findIndex((slot) => slot.lawId === lawId);
+}
+
 /** Подготовка и перезарядка с учётом прокачки (параметры `windupSec`, `cooldownSec` слота). */
 export function windupOf(def: LawDef, slot: LawSlot): Seconds {
 	return slot.params.windupSec ?? def.windup;

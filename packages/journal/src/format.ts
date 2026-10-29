@@ -1,4 +1,4 @@
-// Журнал событий по-русски, для человека.
+// Журнал событий по-русски, для человека. Общий для tools/sim и клиента.
 
 import {
 	type Cause,
@@ -8,7 +8,12 @@ import {
 	TICKS_PER_SECOND,
 	type World,
 } from "@combollect/core";
-import type { ScriptNote } from "./scenario.ts";
+
+/** Реплика сценария или игрока, которую печатают вместе с журналом. */
+export interface ScriptNote {
+	readonly tick: number;
+	readonly text: string;
+}
 
 const SYSTEM_NAMES: Readonly<Record<string, string>> = {
 	clock: "часы",

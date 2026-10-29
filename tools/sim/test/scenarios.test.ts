@@ -1,9 +1,10 @@
 import { eventsOf } from "@combollect/core/testing";
+import { JournalPrinter } from "@combollect/journal";
 import { describe, expect, test } from "vitest";
+import { arenaKnifeWall } from "../scenarios/arena-knife-wall.ts";
 import { scenarios } from "../scenarios/index.ts";
 import { knifeWall } from "../scenarios/knife-wall.ts";
 import { puddleLightning } from "../scenarios/puddle-lightning.ts";
-import { JournalPrinter } from "../src/format.ts";
 import { runScenario } from "../src/scenario.ts";
 
 function journal(scenarioId: string, seed?: number): string {
@@ -58,5 +59,31 @@ describe("Сценарий «Лужа и молния»", () => {
 		expect(struck.map((e) => e.target)).toContain(actors.ally?.id);
 		expect(struck.map((e) => e.target)).not.toContain(actors.dryWolf?.id);
 		expect(struck.map((e) => e.target)).not.toContain(actors.mage?.id);
+	});
+});
+
+describe("Сценарий «Стена ножей на арене»", () => {
+	const { world, actors } = runScenario(arenaKnifeWall).setup;
+	const knives = eventsOf(world, "entitySpawned").filter((e) => e.note === "Нож");
+
+	test("Стена ножей на арене: настоящие законы — Замедление, потом Остановка времени", () => {
+		const fields = eventsOf(world, "timeFieldAdded").map((e) => e.note);
+		expect(fields).toEqual(
+			expect.arrayContaining(["Замедление времени", "Остановка времени", "Временной шрам"]),
+		);
+	});
+
+	test("Стена ножей на арене: в остановке висят сразу три ножа", () => {
+		expect(knives).toHaveLength(3);
+		const stopped = eventsOf(world, "clockRate").filter(
+			(e) => e.after === 0 && knives.some((k) => k.target === e.target),
+		);
+		const frozenAtHand = knives.filter((k) => k.after === 0);
+		expect(stopped.length + frozenAtHand.length).toBe(3);
+	});
+
+	test("Стена ножей на арене: все три ножа попадают во врага", () => {
+		const hits = eventsOf(world, "projectileHit").filter((e) => e.target === actors.enemy?.id);
+		expect(hits).toHaveLength(3);
 	});
 });

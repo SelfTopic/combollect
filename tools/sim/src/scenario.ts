@@ -1,6 +1,7 @@
 // Сценарий: начальный мир и расписание приказов по секундам мира.
 
 import { type Entity, step, TICKS_PER_SECOND, type World } from "@combollect/core";
+import type { ScriptNote } from "@combollect/journal";
 
 export interface ScenarioSetup {
 	readonly world: World;
@@ -27,10 +28,7 @@ export interface Scenario {
 	readonly defaultSeed: number;
 }
 
-export interface ScriptNote {
-	readonly tick: number;
-	readonly text: string;
-}
+export type { ScriptNote } from "@combollect/journal";
 
 export interface ScenarioRun {
 	readonly setup: ScenarioSetup;

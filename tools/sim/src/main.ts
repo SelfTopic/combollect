@@ -1,8 +1,8 @@
 // pnpm sim <сценарий> [--all] [--seed N] — прогнать сценарий без графики и напечатать журнал.
 
 import { isAlive } from "@combollect/core";
+import { JournalPrinter } from "@combollect/journal";
 import { scenarios } from "../scenarios/index.ts";
-import { JournalPrinter } from "./format.ts";
 import { runScenario } from "./scenario.ts";
 
 function main(args: readonly string[]): number {

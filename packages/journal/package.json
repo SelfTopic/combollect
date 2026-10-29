@@ -1,0 +1,11 @@
+{
+	"name": "@combollect/journal",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/format.ts"
+	},
+	"dependencies": {
+		"@combollect/core": "workspace:*"
+	}
+}
