@@ -51,7 +51,7 @@
 			}
 		},
 		{
-			"includes": ["vitest.config.ts"],
+			"includes": ["vitest.config.ts", "apps/*/vite.config.ts"],
 			"linter": {
 				"rules": {
 					"style": {

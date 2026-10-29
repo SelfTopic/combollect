@@ -9,11 +9,13 @@
 	"scripts": {
 		"test": "vitest run",
 		"test:watch": "vitest",
-		"typecheck": "tsc --noEmit -p packages/core && tsc --noEmit -p packages/content && tsc --noEmit -p packages/journal && tsc --noEmit -p tools/sim && tsc --noEmit -p .",
+		"typecheck": "tsc --noEmit -p packages/core && tsc --noEmit -p packages/content && tsc --noEmit -p packages/journal && tsc --noEmit -p tools/sim && tsc --noEmit -p . && tsc --noEmit -p apps/client",
 		"lint": "biome check .",
 		"format": "biome check --write .",
-		"check": "pnpm typecheck && pnpm lint && pnpm test",
-		"sim": "tsx tools/sim/src/main.ts"
+		"check": "pnpm typecheck && pnpm lint && pnpm test && pnpm build",
+		"sim": "tsx tools/sim/src/main.ts",
+		"dev": "pnpm --filter @combollect/client dev",
+		"build": "pnpm --filter @combollect/client build"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.6.4",
