@@ -23,6 +23,7 @@
 | 12 | [12-example-builds.md](12-example-builds.md) | Разбор сборок, включая команду «вне времени» |
 | 13 | [13-open-questions.md](13-open-questions.md) | Открытые вопросы |
 | 14 | [14-prototype-plan.md](14-prototype-plan.md) | План прототипа по этапам |
+| 15 | [15-match-goals.md](15-match-goals.md) | Цели матча: трон онлайн, законы в кампании |
 | dev | [dev/README.md](dev/README.md) | Техника: стек, архитектура, правила кода |
 
 ## Словарь
