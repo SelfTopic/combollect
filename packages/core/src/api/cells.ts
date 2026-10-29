@@ -76,6 +76,8 @@ export function meltIce(world: World, index: number, cause: Cause): void {
 	const cell = cellOf(world, index);
 	if (cell.surface !== "ice") return;
 	cell.trace = null;
+	// Растаявший лёд уже не холоднее точки таяния, иначе тут же замёрз бы снова.
+	cell.temperature = Math.max(cell.temperature, ICE_MELT_TEMP);
 	setSurface(world, index, cell.baseSurface, cause);
 	if (cell.baseSurface !== "water") setCellMoisture(world, index, true, cause);
 }

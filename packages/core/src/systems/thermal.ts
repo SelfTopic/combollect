@@ -69,14 +69,16 @@ function receiveHeat(world: World, entity: Entity, dt: number, burning: readonly
 
 /** Своё: остывание к норме, горение, ожоги, замерзание конечностей — по своим часам. */
 function selfProcesses(world: World, entity: Entity, dt: number): void {
-	const t = entity.state.temperature;
-	const relax = entity.tags.has("WarmBlooded") ? WARM_BLOODED_RELAX_PER_SEC : PASSIVE_RELAX_PER_SEC;
-	const relaxed = towards(t, 0, relax * dt);
-	if (relaxed !== t) applyTemperature(world, entity, relaxed - t, THERMAL, RELAX);
+	// Сначала жар собственного огня, потом остывание: иначе только что вспыхнувшее
+	// на пороге тут же гасло бы и вспыхивало снова.
 	if (entity.state.burning) {
 		applyTemperature(world, entity, BURNING_SELF_HEAT_PER_SEC * dt, THERMAL, MINOR);
 		applyDamage(world, entity, BURNING_DAMAGE_PER_SEC * dt, THERMAL, true);
 	}
+	const t = entity.state.temperature;
+	const relax = entity.tags.has("WarmBlooded") ? WARM_BLOODED_RELAX_PER_SEC : PASSIVE_RELAX_PER_SEC;
+	const relaxed = towards(t, 0, relax * dt);
+	if (relaxed !== t) applyTemperature(world, entity, relaxed - t, THERMAL, RELAX);
 	// Ожоги и обморожение — у тех, кто держит свою температуру (docs/02-atoms.md, `Теплокровный`).
 	if (!entity.tags.has("WarmBlooded")) return;
 	const now = entity.state.temperature;
