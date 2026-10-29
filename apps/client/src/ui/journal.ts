@@ -13,7 +13,7 @@ export class JournalFeed {
 	private readonly lines: string[] = [];
 	private dirty = true;
 
-	constructor(world: World) {
+	constructor(private readonly world: World) {
 		this.printer = new JournalPrinter(world);
 	}
 
@@ -35,6 +35,13 @@ export class JournalFeed {
 			const tick = events[events.length - 1]?.tick ?? 0;
 			this.push(tick, `⧗ Часы ×${rate}: ${count} сущн.`);
 		}
+	}
+
+	/** Замах и применение базовой атаки — каждую секунду; урон от неё всё равно виден. */
+	private isBasicAttackNoise(ev: GameEvent): boolean {
+		if (ev.kind !== "windupStarted" && ev.kind !== "lawApplied") return false;
+		const law = ev.cause.lawId === undefined ? undefined : this.world.laws.get(ev.cause.lawId);
+		return law?.basicAttack === true;
 	}
 
 	private push(tick: number, text: string): void {

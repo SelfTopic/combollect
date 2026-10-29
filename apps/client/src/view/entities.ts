@@ -181,11 +181,6 @@ export class EntityLayer {
 		s.label.text = look?.letter ?? "";
 		s.label.style.fill = desaturate(0xffffff, rate);
 		const slot = paint.playerHeroes.indexOf(e.id);
-		if (slot >= 0) {
-			g.circle(r * 0.8, -r * 0.8, 7)
-				.fill(0x111111)
-				.stroke({ width: 1, color: 0xffffff });
-		}
 		this.healthBar(g, e, 40, -r - 16);
 		this.miniDoll(g, e, r);
 		if (e.state.wounds.length > 0) {
